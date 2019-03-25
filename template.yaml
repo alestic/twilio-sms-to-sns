@@ -1,13 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-    Twilio API
+    Twilio SMS to SNS
 
 Resources:
     RestAPI:
       Type: AWS::ApiGateway::RestApi
       Properties:
-        Name: "Petition API"
+        Name: "Twilio SMS to SNS API"
     Message:
       Type: AWS::ApiGateway::Resource
       Properties:
@@ -79,7 +79,7 @@ Resources:
             integration.request.querystring.TargetArn: !Sub
               - "'${targetArn}'"
               - targetArn:
-                 !Ref DeveloperNotification
+                 !Ref TwilioSMS
             integration.request.querystring.Version: "'2010-03-31'"
             integration.request.header.Content-Type: "'application/json'"
           RequestTemplates:
@@ -151,12 +151,12 @@ Resources:
              Statement:
               - Effect: "Allow"
                 Action: "sns:Publish"
-                Resource: !Ref DeveloperNotification
+                Resource: !Ref TwilioSMS
 
-    DeveloperNotification:
+    TwilioSMS:
       Type: AWS::SNS::Topic
       Properties:
-        DisplayName: "Build Notifier"
+        DisplayName: "Twilio SMS"
 
     SNSPolicy:
       Type: AWS::SNS::TopicPolicy
@@ -168,6 +168,6 @@ Resources:
             Principal:
               Service: apigateway.amazonaws.com
             Action: sns:Publish
-            Resource: !Ref DeveloperNotification
+            Resource: !Ref TwilioSMS
         Topics:
-          - !Ref DeveloperNotification
+          - !Ref TwilioSMS
